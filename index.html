@@ -1,0 +1,1522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Google AdSense: MQO publisher account -->
+    <meta name="google-adsense-account" content="ca-pub-6500200218817892">
+    <script async
+        src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6500200218817892"
+        crossorigin="anonymous"></script>
+
+    <!-- AdSense Publisher ID: ca-pub-6500200218817892 -->
+    <title> MQOCalc: Basic & Scientific - Feature-Rich Calculator with Auto-Resuming Ads & History</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            400: '#38bdf8',
+                            500: '#0284c7',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+
+        /* ================= FIXED DAY/NIGHT THEMES ================= */
+        body.light-theme {
+            background: #fff7ed !important;
+            color: #1f2937 !important;
+        }
+
+        body.light-theme #appShell {
+            background: #ffffff !important;
+            border-color: #fed7aa !important;
+            color: #1f2937 !important;
+        }
+
+        body.light-theme header,
+        body.light-theme .bg-slate-800\/40,
+        body.light-theme .bg-slate-900\/80,
+        body.light-theme .bg-slate-900\/95,
+        body.light-theme .bg-slate-900\/90 {
+            background-color: #fff7ed !important;
+        }
+
+        body.light-theme .bg-slate-950\/90 {
+            background: #ffffff !important;
+        }
+
+        body.light-theme #expressionDisplay {
+            color: #78716c !important;
+        }
+
+        body.light-theme #resultDisplay {
+            color: #111827 !important;
+        }
+
+        body.light-theme .text-slate-100,
+        body.light-theme .text-slate-200 {
+            color: #1f2937 !important;
+        }
+
+        body.light-theme .text-slate-300 {
+            color: #374151 !important;
+        }
+
+        body.light-theme .text-slate-400 {
+            color: #57534e !important;
+        }
+
+        body.light-theme .text-slate-500 {
+            color: #78716c !important;
+        }
+
+        body.light-theme .bg-slate-800,
+        body.light-theme .bg-slate-800\/60,
+        body.light-theme .bg-slate-800\/80 {
+            background-color: #fff1e6 !important;
+            border-color: #fed7aa !important;
+            color: #292524 !important;
+        }
+
+        body.light-theme .bg-sky-500 {
+            background-color: #f97316 !important;
+        }
+
+        body.light-theme .text-sky-400,
+        body.light-theme .text-sky-300 {
+            color: #ea580c !important;
+        }
+
+        body.light-theme .border-slate-700,
+        body.light-theme .border-slate-700\/60,
+        body.light-theme .border-slate-700\/50 {
+            border-color: #fed7aa !important;
+        }
+
+        /* Scientific display never overlays: long values scroll horizontally and shrink smoothly. */
+        #expressionDisplay {
+            overflow-x: auto;
+            overflow-y: hidden;
+            max-width: 100%;
+            white-space: nowrap;
+            scrollbar-width: thin;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 2px;
+        }
+
+        #resultDisplayContainer {
+            max-width: 100%;
+            overflow: hidden;
+        }
+
+        #resultDisplay {
+            display: block;
+            max-width: 100%;
+            overflow-x: auto;
+            overflow-y: hidden;
+            white-space: nowrap;
+            text-align: right;
+            scrollbar-width: thin;
+            -webkit-overflow-scrolling: touch;
+            font-size: clamp(1.35rem, 7vw, 2.5rem);
+            line-height: 1.15;
+            min-width: 0;
+        }
+
+        #livePreview {
+            display: block;
+            max-width: 100%;
+            overflow-x: auto;
+            overflow-y: hidden;
+            white-space: nowrap;
+            scrollbar-width: thin;
+        }
+
+        @media (max-width: 420px) {
+            #appShell {
+                min-height: 0 !important;
+                height: 100dvh !important;
+                max-height: none !important;
+                border-radius: 0.9rem;
+            }
+
+            #resultDisplay {
+                font-size: clamp(1.2rem, 9vw, 2rem);
+            }
+        }
+
+        /* Custom scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(156, 163, 175, 0.3);
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(156, 163, 175, 0.6);
+        }
+
+        /* Glassmorphism effects */
+        .glass-card {
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+        }
+
+        /* Keypad button click animation effect */
+        .calc-btn {
+            transition: all 0.1s cubic-bezier(0.4, 0, 0.2, 1);
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+        }
+        .calc-btn:active {
+            transform: scale(0.94);
+        }
+
+        /* Drawer overlay transition */
+        .drawer-slide {
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* Collapsible ad banner styling with smooth transition */
+        .ad-collapsed {
+            max-height: 0px !important;
+            opacity: 0 !important;
+            overflow: hidden !important;
+            padding-top: 0 !important;
+            padding-bottom: 0 !important;
+            margin-top: 0 !important;
+            margin-bottom: 0 !important;
+            border-bottom-width: 0px !important;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .ad-expanded {
+            max-height: 120px !important;
+            opacity: 1 !important;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Countdown radial or progress indicator animation */
+        @keyframes countdownPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+            100% { transform: scale(1); }
+        }
+        .pulse-timer {
+            animation: countdownPulse 1s infinite;
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex items-center justify-center p-2 sm:p-4 transition-colors duration-300 font-sans selection:bg-sky-500 selection:text-white">
+
+    <!-- Main Outer Calculator App Shell -->
+    <div id="appShell" class="w-full max-w-2xl mx-auto relative flex flex-col h-[96vh] max-h-[920px] min-h-[680px] bg-slate-900/90 dark:bg-slate-900/95 rounded-3xl shadow-2xl border border-slate-700/60 glass-card overflow-hidden">
+        
+        <!-- ================= 1. AD BANNER BAR (TOP WITH 5S RESUME LOGIC) ================= -->
+        <div id="adBanner" class="ad-expanded bg-gradient-to-r from-amber-500/10 via-purple-500/10 to-sky-500/10 border-b border-slate-700/60 p-2.5 relative flex items-center justify-between gap-2 shrink-0">
+            <div class="flex items-center gap-2.5 min-w-0 flex-1">
+                <!-- Dynamic Ad Icon -->
+                <div id="adIcon" class="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0 border border-amber-500/30 shadow-inner">
+                    <i data-lucide="sparkles" class="w-4 h-4"></i>
+                </div>
+                <!-- Ad Text Details -->
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-1.5">
+                        <span class="px-1.5 py-0.5 text-[9px] font-bold bg-amber-500 text-slate-950 rounded uppercase tracking-wider">Ad</span>
+                        <h4 id="adTitle" class="text-xs font-semibold text-slate-200 truncate">🚀 Cloud Storage Pro - 50% Off</h4>
+                    </div>
+                    <p id="adDesc" class="text-[11px] text-slate-400 truncate">Secure 2TB lifetime backup today for $29.</p>
+                </div>
+            </div>
+
+            <!-- Ad Interactive Controls -->
+            <div class="flex items-center gap-1 shrink-0">
+                <a id="adCta" href="#" target="_blank" onclick="event.preventDefault(); showToast('Ad Clicked: Demo Sponsor Offer');" class="px-2.5 py-1 text-xs font-semibold bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-lg transition-all shadow-sm hover:scale-105">
+                    Claim
+                </a>
+                <button onclick="toggleAdInfo()" title="Ad Disclosure Info" class="p-1 text-slate-400 hover:text-slate-200 rounded-lg hover:bg-slate-700/50 transition-colors">
+                    <i data-lucide="info" class="w-3.5 h-3.5"></i>
+                </button>
+                <button onclick="dismissAd()" title="Close Ad Banner (Returns in 5s)" class="p-1 text-slate-400 hover:text-rose-400 rounded-lg hover:bg-slate-700/50 transition-colors">
+                    <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- 5-Second Resume Countdown Badge (Appears when user dismisses ad) -->
+        <div id="adTimerNotice" class="hidden px-3 py-1.5 bg-amber-500/10 border-b border-amber-500/30 text-amber-300 text-xs flex items-center justify-between transition-all duration-300">
+            <div class="flex items-center gap-2">
+                <i data-lucide="timer" class="w-3.5 h-3.5 text-amber-400 animate-spin"></i>
+                <span class="text-[11px] font-medium">Ad dismissed. Re-appearing in <span id="adCountdownText" class="font-bold font-mono text-amber-200 pulse-timer">5</span>s...</span>
+            </div>
+            <button onclick="restoreAdImmediately()" class="text-[10px] px-2 py-0.5 bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 font-semibold rounded border border-amber-500/30 transition-colors">
+                Show Now
+            </button>
+        </div>
+<!-- ================= 2. NAVBAR & MODE SWITCHER ================= -->
+        <header class="px-3 sm:px-4 py-2.5 flex items-center justify-between border-b border-slate-700/40 bg-slate-800/40 shrink-0">
+            <!-- App Brand & Title -->
+            <div class="flex items-center gap-2">
+                <div class="w-7 h-7 rounded-lg bg-sky-500/20 text-sky-400 flex items-center justify-center font-bold text-sm border border-sky-500/30">
+                    <i data-lucide="calculator" class="w-4 h-4"></i>
+                </div>
+                <span class="font-bold text-sm tracking-wide text-slate-200 hidden sm:inline">MQOCalc : Basic & Scientific <span class="text-[10px] px-1.5 py-0.5 rounded bg-sky-500/10 text-sky-400 border border-sky-500/20 font-mono">SCI</span></span>
+            </div>
+
+            <!-- Mode Switcher Pill (Basic vs Scientific) -->
+            <div class="flex items-center bg-slate-800/80 p-0.5 rounded-xl border border-slate-700/60">
+                <button id="modeBasicBtn" onclick="setCalcMode('basic')" class="px-2.5 py-1 text-xs font-semibold rounded-lg transition-all text-slate-400 hover:text-slate-200">
+                    Basic
+                </button>
+                <button id="modeSciBtn" onclick="setCalcMode('scientific')" class="px-2.5 py-1 text-xs font-semibold rounded-lg transition-all bg-sky-500 text-white shadow-sm">
+                    Scientific
+                </button>
+            </div>
+
+            <!-- Quick Action Toolbar -->
+            <div class="flex items-center gap-1">
+                <!-- Active Memory Indicator -->
+                <div id="memoryIndicator" class="hidden items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-[10px] font-mono border border-amber-500/30">
+                    <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span> M
+                </div>
+
+                <!-- Keyboard Shortcuts Modal Trigger -->
+                <button onclick="toggleHelpModal()" class="p-1.5 text-slate-400 hover:text-slate-100 hover:bg-slate-700/50 rounded-xl transition-all" title="Keyboard Shortcuts Helper">
+                    <i data-lucide="keyboard" class="w-4 h-4"></i>
+                </button>
+
+                <!-- Sound Feedback Toggle -->
+                <button id="soundToggleBtn" onclick="toggleSound()" class="p-1.5 text-slate-400 hover:text-slate-100 hover:bg-slate-700/50 rounded-xl transition-all" title="Toggle Sound Feedback">
+                    <i data-lucide="volume-2" class="w-4 h-4"></i>
+                </button>
+
+                <!-- Theme Toggle -->
+                <button id="themeToggleBtn" onclick="toggleTheme()" class="p-1.5 text-slate-400 hover:text-slate-100 hover:bg-slate-700/50 rounded-xl transition-all" title="Toggle Light/Dark Theme">
+                    <i data-lucide="sun" class="w-4 h-4"></i>
+                </button>
+
+                <!-- History Drawer Button -->
+                <button id="historyToggleBtn" onclick="toggleHistoryDrawer()" class="relative p-1.5 text-slate-400 hover:text-slate-100 hover:bg-slate-700/50 rounded-xl transition-all flex items-center justify-center" title="Open Calculation History">
+                    <i data-lucide="history" class="w-4 h-4"></i>
+                    <span id="historyBadge" class="absolute -top-1 -right-1 w-4 h-4 bg-sky-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center opacity-0 transition-opacity">0</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- ================= 3. CALCULATOR DISPLAY SCREEN ================= -->
+        <div class="p-4 sm:p-5 flex-1 flex flex-col justify-end bg-slate-950/90 border-b border-slate-700/50 shadow-inner relative overflow-hidden">
+            
+            <!-- Working Expression Input Line -->
+            <div id="expressionDisplay" class="text-right text-sm sm:text-base font-mono text-slate-400 min-h-[1.75rem] tracking-wider break-all overflow-x-auto whitespace-nowrap scrollbar-none transition-all">
+                <!-- Populated dynamically -->
+            </div>
+
+            <!-- Live Calculation Preview & Final Result Line -->
+            <div id="resultDisplayContainer" class="flex flex-col items-end justify-end min-h-[3.5rem] mt-1 overflow-hidden">
+                <span id="livePreview" class="text-xs font-mono text-sky-400/80 mb-0.5 min-h-[1rem]"></span>
+                <span id="resultDisplay" class="text-3xl sm:text-4xl font-bold font-mono text-slate-100 tracking-tight transition-all duration-150 origin-right break-all">
+                    0
+                </span>
+            </div>
+
+            <!-- Display Status Bar (Copy button, DEG/RAD tag, Open Parentheses Badge) -->
+            <div class="flex items-center justify-between text-[11px] text-slate-500 font-mono mt-3 pt-2 border-t border-slate-800/80">
+                <div class="flex items-center gap-3">
+                    <span class="hover:text-slate-300 cursor-pointer transition-colors flex items-center gap-1" onclick="copyCurrentResult()" title="Copy current value">
+                        <i data-lucide="copy" class="w-3 h-3"></i> Copy
+                    </span>
+                    <!-- Angle Mode Indicator Toggle -->
+                    <button id="angleModeBtn" onclick="toggleAngleMode()" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-sky-400 font-bold border border-slate-700 transition-colors" title="Click to switch DEG / RAD">
+                        DEG
+                    </button>
+                </div>
+                
+                <div class="flex items-center gap-2">
+                    <!-- Parentheses Counter Badge -->
+                    <span id="parenBadge" class="hidden px-2 py-0.5 rounded-full bg-sky-500/20 text-sky-300 border border-sky-500/30 text-[10px]">
+                        Open ( <span id="openParenCount">0</span> )
+                    </span>
+                    <span id="calcModeTag" class="text-[10px] uppercase tracking-widest text-slate-500">
+                        SCI MODE
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= 4. KEYPAD & CONTROLS ================= -->
+        <div class="p-3 sm:p-4 bg-slate-900/80 flex-none flex flex-col gap-2 overflow-y-auto">
+            
+            <!-- Scientific Secondary Panel -->
+            <div id="sciPanel" class="grid grid-cols-5 gap-1.5 transition-all">
+                <!-- Row A: Trig & Inverse Trig -->
+                <button onclick="appendFunction('sin')" class="calc-btn py-2 text-xs font-mono font-semibold rounded-xl bg-slate-800/80 text-sky-300 hover:bg-sky-500/20 hover:text-sky-200 border border-slate-700/50">sin</button>
+                <button onclick="appendFunction('cos')" class="calc-btn py-2 text-xs font-mono font-semibold rounded-xl bg-slate-800/80 text-sky-300 hover:bg-sky-500/20 hover:text-sky-200 border border-slate-700/50">cos</button>
+                <button onclick="appendFunction('tan')" class="calc-btn py-2 text-xs font-mono font-semibold rounded-xl bg-slate-800/80 text-sky-300 hover:bg-sky-500/20 hover:text-sky-200 border border-slate-700/50">tan</button>
+                <button onclick="appendFunction('asin')" class="calc-btn py-2 text-xs font-mono font-semibold rounded-xl bg-slate-800/80 text-sky-300/80 hover:bg-sky-500/20 hover:text-sky-200 border border-slate-700/50">sin⁻¹</button>
+                <button onclick="appendFunction('acos')" class="calc-btn py-2 text-xs font-mono font-semibold rounded-xl bg-slate-800/80 text-sky-300/80 hover:bg-sky-500/20 hover:text-sky-200 border border-slate-700/50">cos⁻¹</button>
+
+                <!-- Row B: More Inverse Trig, Exponentials & Logarithms -->
+                <button onclick="appendFunction('atan')" class="calc-btn py-2 text-xs font-mono font-semibold rounded-xl bg-slate-800/80 text-sky-300/80 hover:bg-sky-500/20 hover:text-sky-200 border border-slate-700/50">tan⁻¹</button>
+                <button onclick="appendFunction('log')" class="calc-btn py-2 text-xs font-mono font-semibold rounded-xl bg-slate-800/80 text-purple-300 hover:bg-purple-500/20 hover:text-purple-200 border border-slate-700/50">log₁₀</button>
+                <button onclick="appendFunction('ln')" class="calc-btn py-2 text-xs font-mono font-semibold rounded-xl bg-slate-800/80 text-purple-300 hover:bg-purple-500/20 hover:text-purple-200 border border-slate-700/50">ln</button>
+                <button onclick="appendFunction('e^x')" class="calc-btn py-2 text-xs font-mono font-semibold rounded-xl bg-slate-800/80 text-purple-300 hover:bg-purple-500/20 hover:text-purple-200 border border-slate-700/50">eˣ</button>
+                <button onclick="appendFunction('10^x')" class="calc-btn py-2 text-xs font-mono font-semibold rounded-xl bg-slate-800/80 text-purple-300 hover:bg-purple-500/20 hover:text-purple-200 border border-slate-700/50">10ˣ</button>
+
+                <!-- Row C: Powers, Roots & Advanced Ops -->
+                <button onclick="appendFunction('square')" class="calc-btn py-2 text-xs font-mono font-semibold rounded-xl bg-slate-800/80 text-indigo-300 hover:bg-indigo-500/20 hover:text-indigo-200 border border-slate-700/50">x²</button>
+                <button onclick="appendFunction('cube')" class="calc-btn py-2 text-xs font-mono font-semibold rounded-xl bg-slate-800/80 text-indigo-300 hover:bg-indigo-500/20 hover:text-indigo-200 border border-slate-700/50">x³</button>
+                <button onclick="appendOperator('^')" class="calc-btn py-2 text-xs font-mono font-semibold rounded-xl bg-slate-800/80 text-indigo-300 hover:bg-indigo-500/20 hover:text-indigo-200 border border-slate-700/50">xʸ</button>
+                <button onclick="appendFunction('sqrt')" class="calc-btn py-2 text-xs font-mono font-semibold rounded-xl bg-slate-800/80 text-indigo-300 hover:bg-indigo-500/20 hover:text-indigo-200 border border-slate-700/50">√x</button>
+                <button onclick="appendFunction('cbrt')" class="calc-btn py-2 text-xs font-mono font-semibold rounded-xl bg-slate-800/80 text-indigo-300 hover:bg-indigo-500/20 hover:text-indigo-200 border border-slate-700/50">∛x</button>
+
+                <!-- Row D: Factorial, Absolute, Modulo, Constants -->
+                <button onclick="appendFunction('fact')" class="calc-btn py-2 text-xs font-mono font-semibold rounded-xl bg-slate-800/80 text-teal-300 hover:bg-teal-500/20 hover:text-teal-200 border border-slate-700/50">n!</button>
+                <button onclick="appendFunction('abs')" class="calc-btn py-2 text-xs font-mono font-semibold rounded-xl bg-slate-800/80 text-teal-300 hover:bg-teal-500/20 hover:text-teal-200 border border-slate-700/50">|x|</button>
+                <button onclick="appendOperator('mod')" class="calc-btn py-2 text-xs font-mono font-semibold rounded-xl bg-slate-800/80 text-teal-300 hover:bg-teal-500/20 hover:text-teal-200 border border-slate-700/50">mod</button>
+                <button onclick="appendConstant('π')" class="calc-btn py-2 text-xs font-mono font-semibold rounded-xl bg-slate-800/80 text-amber-300 hover:bg-amber-500/20 hover:text-amber-200 border border-slate-700/50">π</button>
+                <button onclick="appendConstant('e')" class="calc-btn py-2 text-xs font-mono font-semibold rounded-xl bg-slate-800/80 text-amber-300 hover:bg-amber-500/20 hover:text-amber-200 border border-slate-700/50">e</button>
+            </div>
+
+            <!-- Memory Bar & Parentheses Row -->
+            <div class="grid grid-cols-6 gap-1.5">
+                <button onclick="handleMemory('MC')" class="calc-btn py-1.5 text-xs font-semibold rounded-xl bg-slate-800/60 text-slate-400 hover:bg-slate-700 hover:text-slate-200 border border-slate-700/40">MC</button>
+                <button onclick="handleMemory('MR')" class="calc-btn py-1.5 text-xs font-semibold rounded-xl bg-slate-800/60 text-slate-400 hover:bg-slate-700 hover:text-slate-200 border border-slate-700/40">MR</button>
+                <button onclick="handleMemory('M+')" class="calc-btn py-1.5 text-xs font-semibold rounded-xl bg-slate-800/60 text-amber-400/80 hover:bg-amber-500/20 hover:text-amber-300 border border-slate-700/40">M+</button>
+                <button onclick="handleMemory('M-')" class="calc-btn py-1.5 text-xs font-semibold rounded-xl bg-slate-800/60 text-amber-400/80 hover:bg-amber-500/20 hover:text-amber-300 border border-slate-700/40">M-</button>
+                <button onclick="appendParen('(')" class="calc-btn py-1.5 text-xs font-mono font-semibold rounded-xl bg-slate-800 text-sky-400 hover:bg-sky-500/20 border border-slate-700/50">(</button>
+                <button onclick="appendParen(')')" class="calc-btn py-1.5 text-xs font-mono font-semibold rounded-xl bg-slate-800 text-sky-400 hover:bg-sky-500/20 border border-slate-700/50">)</button>
+            </div>
+
+            <!-- Main Primary Keypad -->
+            <div class="grid grid-cols-4 gap-2 text-lg sm:text-xl font-medium mt-1">
+                
+                <!-- Row 1 -->
+                <button onclick="handleAction('clear')" class="calc-btn py-3 sm:py-3.5 rounded-2xl bg-rose-500/15 text-rose-400 hover:bg-rose-500/25 font-semibold text-base transition-colors border border-rose-500/20">AC</button>
+                <button onclick="handleAction('clearEntry')" class="calc-btn py-3 sm:py-3.5 rounded-2xl bg-slate-800 text-slate-300 hover:bg-slate-700 font-semibold text-base transition-colors border border-slate-700/60">CE</button>
+                <button onclick="handleAction('backspace')" class="calc-btn py-3 sm:py-3.5 rounded-2xl bg-slate-800 text-slate-300 hover:bg-slate-700 transition-colors flex items-center justify-center border border-slate-700/60" title="Backspace">
+                    <i data-lucide="delete" class="w-5 h-5"></i>
+                </button>
+                <button onclick="appendOperator('÷')" class="calc-btn py-3 sm:py-3.5 rounded-2xl bg-sky-500/20 text-sky-400 hover:bg-sky-500/30 font-semibold transition-colors border border-sky-500/30 flex items-center justify-center">÷</button>
+
+                <!-- Row 2 -->
+                <button onclick="appendDigit('7')" class="calc-btn py-3 sm:py-3.5 rounded-2xl bg-slate-800 text-slate-100 hover:bg-slate-700 transition-colors border border-slate-700/60 shadow-sm">7</button>
+                <button onclick="appendDigit('8')" class="calc-btn py-3 sm:py-3.5 rounded-2xl bg-slate-800 text-slate-100 hover:bg-slate-700 transition-colors border border-slate-700/60 shadow-sm">8</button>
+                <button onclick="appendDigit('9')" class="calc-btn py-3 sm:py-3.5 rounded-2xl bg-slate-800 text-slate-100 hover:bg-slate-700 transition-colors border border-slate-700/60 shadow-sm">9</button>
+                <button onclick="appendOperator('×')" class="calc-btn py-3 sm:py-3.5 rounded-2xl bg-sky-500/20 text-sky-400 hover:bg-sky-500/30 font-semibold transition-colors border border-sky-500/30 flex items-center justify-center">×</button>
+
+                <!-- Row 3 -->
+                <button onclick="appendDigit('4')" class="calc-btn py-3 sm:py-3.5 rounded-2xl bg-slate-800 text-slate-100 hover:bg-slate-700 transition-colors border border-slate-700/60 shadow-sm">4</button>
+                <button onclick="appendDigit('5')" class="calc-btn py-3 sm:py-3.5 rounded-2xl bg-slate-800 text-slate-100 hover:bg-slate-700 transition-colors border border-slate-700/60 shadow-sm">5</button>
+                <button onclick="appendDigit('6')" class="calc-btn py-3 sm:py-3.5 rounded-2xl bg-slate-800 text-slate-100 hover:bg-slate-700 transition-colors border border-slate-700/60 shadow-sm">6</button>
+                <button onclick="appendOperator('-')" class="calc-btn py-3 sm:py-3.5 rounded-2xl bg-sky-500/20 text-sky-400 hover:bg-sky-500/30 font-semibold transition-colors border border-sky-500/30 flex items-center justify-center">−</button>
+
+                <!-- Row 4 -->
+                <button onclick="appendDigit('1')" class="calc-btn py-3 sm:py-3.5 rounded-2xl bg-slate-800 text-slate-100 hover:bg-slate-700 transition-colors border border-slate-700/60 shadow-sm">1</button>
+                <button onclick="appendDigit('2')" class="calc-btn py-3 sm:py-3.5 rounded-2xl bg-slate-800 text-slate-100 hover:bg-slate-700 transition-colors border border-slate-700/60 shadow-sm">2</button>
+                <button onclick="appendDigit('3')" class="calc-btn py-3 sm:py-3.5 rounded-2xl bg-slate-800 text-slate-100 hover:bg-slate-700 transition-colors border border-slate-700/60 shadow-sm">3</button>
+                <button onclick="appendOperator('+')" class="calc-btn py-3 sm:py-3.5 rounded-2xl bg-sky-500/20 text-sky-400 hover:bg-sky-500/30 font-semibold transition-colors border border-sky-500/30 flex items-center justify-center">+</button>
+
+                <!-- Row 5 -->
+                <button onclick="appendFunction('negate')" class="calc-btn py-3 sm:py-3.5 rounded-2xl bg-slate-800 text-slate-300 hover:bg-slate-700 transition-colors border border-slate-700/60 font-semibold text-base">±</button>
+                <button onclick="appendDigit('0')" class="calc-btn py-3 sm:py-3.5 rounded-2xl bg-slate-800 text-slate-100 hover:bg-slate-700 transition-colors border border-slate-700/60 shadow-sm">0</button>
+                <button onclick="appendDecimal()" class="calc-btn py-3 sm:py-3.5 rounded-2xl bg-slate-800 text-slate-100 hover:bg-slate-700 transition-colors border border-slate-700/60 shadow-sm font-bold">.</button>
+                <button onclick="appendOperator('%')" class="calc-btn py-3 sm:py-3.5 rounded-2xl bg-slate-800 text-slate-300 hover:bg-slate-700 transition-colors border border-slate-700/60 text-base font-semibold">%</button>
+            </div>
+
+            <!-- Bottom Full Width Equals Button -->
+            <button onclick="executeCalculation()" class="calc-btn w-full py-3.5 mt-1 rounded-2xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-bold text-xl shadow-lg shadow-sky-500/25 border border-sky-400/30 transition-all flex items-center justify-center gap-2">
+                =
+            </button>
+        </div>
+
+        <!-- ================= 5. HISTORY DRAWER PANEL ================= -->
+        <div id="historyDrawer" class="absolute inset-0 bg-slate-950/95 z-30 transform translate-x-full drawer-slide flex flex-col backdrop-blur-md">
+            
+            <!-- History Drawer Header -->
+            <div class="px-4 py-3 border-b border-slate-700/60 bg-slate-800/50 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="history" class="w-5 h-5 text-sky-400"></i>
+                    <h3 class="font-bold text-slate-200 text-base">Calculation History</h3>
+                </div>
+                <button onclick="toggleHistoryDrawer()" class="p-1.5 text-slate-400 hover:text-slate-100 hover:bg-slate-700/50 rounded-xl transition-colors">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- Search Bar, Filter Tabs & Action Controls -->
+            <div class="p-3 border-b border-slate-800/80 flex flex-col gap-2">
+                <!-- Search Input -->
+                <div class="relative w-full">
+                    <i data-lucide="search" class="w-4 h-4 absolute left-3 top-2.5 text-slate-400"></i>
+                    <input type="text" id="historySearchInput" oninput="filterHistory()" placeholder="Search formulas or results..." class="w-full bg-slate-900 border border-slate-700/80 rounded-xl pl-9 pr-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-sky-500 transition-colors">
+                </div>
+
+                <!-- Tabs & Export/Clear Options -->
+                <div class="flex items-center justify-between gap-2">
+                    <div class="flex items-center gap-1 bg-slate-900/80 p-0.5 rounded-xl border border-slate-800">
+                        <button id="historyTabAll" onclick="setHistoryFilter('all')" class="px-2.5 py-1 text-[11px] font-medium rounded-lg text-white bg-sky-600 transition-colors">All</button>
+                        <button id="historyTabStarred" onclick="setHistoryFilter('starred')" class="px-2.5 py-1 text-[11px] font-medium rounded-lg text-slate-400 hover:text-white transition-colors flex items-center gap-1">
+                            <i data-lucide="star" class="w-3 h-3 text-amber-400"></i> Starred
+                        </button>
+                    </div>
+
+                    <div class="flex items-center gap-1">
+                        <button onclick="exportHistoryTxt()" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 rounded-lg text-[11px] font-medium transition-colors" title="Export TXT">TXT</button>
+                        <button onclick="exportHistoryJson()" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 rounded-lg text-[11px] font-medium transition-colors" title="Export JSON">JSON</button>
+                        <button onclick="promptClearHistory()" class="p-1 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 text-rose-400 rounded-lg text-xs font-medium transition-colors" title="Clear All History">
+                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- History Scrollable List -->
+            <div id="historyList" class="flex-1 overflow-y-auto p-3 space-y-2">
+                <!-- History Items Dynamic Render -->
+            </div>
+
+            <!-- Drawer Footer -->
+            <div class="p-3 border-t border-slate-800/80 bg-slate-900/50 text-[11px] text-slate-500 flex items-center justify-between font-mono">
+                <span>Click item to load result</span>
+                <span id="historyCountText">0 items</span>
+            </div>
+        </div>
+
+        <!-- ================= 6. MODALS & DIALOGS ================= -->
+        
+        <!-- Clear Confirmation Modal -->
+        <div id="confirmModal" class="hidden absolute inset-0 bg-slate-950/80 z-40 backdrop-blur-sm flex items-center justify-center p-4">
+            <div class="bg-slate-900 border border-slate-700 rounded-2xl p-5 max-w-xs w-full shadow-2xl flex flex-col items-center text-center">
+                <div class="w-12 h-12 rounded-full bg-rose-500/20 text-rose-400 flex items-center justify-center mb-3">
+                    <i data-lucide="alert-triangle" class="w-6 h-6"></i>
+                </div>
+                <h4 class="text-base font-bold text-slate-100 mb-1">Erase All History?</h4>
+                <p class="text-xs text-slate-400 mb-5">This action permanently deletes all saved calculations from local storage.</p>
+                <div class="flex items-center gap-2 w-full">
+                    <button onclick="closeConfirmModal()" class="flex-1 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-xl transition-colors">Cancel</button>
+                    <button onclick="confirmClearHistory()" class="flex-1 py-2 bg-rose-600 hover:bg-rose-500 text-white text-xs font-semibold rounded-xl transition-colors">Clear All</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Keyboard Shortcuts Helper Modal -->
+        <div id="helpModal" class="hidden absolute inset-0 bg-slate-950/85 z-40 backdrop-blur-md flex items-center justify-center p-4">
+            <div class="bg-slate-900 border border-slate-700 rounded-2xl p-5 max-w-md w-full shadow-2xl flex flex-col max-h-[85vh]">
+                <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                    <div class="flex items-center gap-2 text-sky-400 font-bold text-sm">
+                        <i data-lucide="keyboard" class="w-4 h-4"></i> Keyboard Shortcuts Guide
+                    </div>
+                    <button onclick="toggleHelpModal()" class="text-slate-400 hover:text-slate-100">
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                    </button>
+                </div>
+                
+                <div class="flex-1 overflow-y-auto py-3 space-y-2 text-xs font-mono text-slate-300">
+                    <div class="grid grid-cols-2 gap-2">
+                        <div class="bg-slate-800/60 p-2 rounded-lg border border-slate-700/50"><span class="text-sky-400 font-bold">0-9 / .</span> : Digits & Decimal</div>
+                        <div class="bg-slate-800/60 p-2 rounded-lg border border-slate-700/50"><span class="text-sky-400 font-bold">+ - * /</span> : Basic Operators</div>
+                        <div class="bg-slate-800/60 p-2 rounded-lg border border-slate-700/50"><span class="text-sky-400 font-bold">Enter / =</span> : Calculate Result</div>
+                        <div class="bg-slate-800/60 p-2 rounded-lg border border-slate-700/50"><span class="text-sky-400 font-bold">Backspace</span> : Delete Last</div>
+                        <div class="bg-slate-800/60 p-2 rounded-lg border border-slate-700/50"><span class="text-sky-400 font-bold">Escape</span> : Clear All (AC)</div>
+                        <div class="bg-slate-800/60 p-2 rounded-lg border border-slate-700/50"><span class="text-sky-400 font-bold">^</span> : Power (xʸ)</div>
+                        <div class="bg-slate-800/60 p-2 rounded-lg border border-slate-700/50"><span class="text-sky-400 font-bold">( and )</span> : Parentheses</div>
+                        <div class="bg-slate-800/60 p-2 rounded-lg border border-slate-700/50"><span class="text-sky-400 font-bold">s / c / t</span> : sin / cos / tan</div>
+                        <div class="bg-slate-800/60 p-2 rounded-lg border border-slate-700/50"><span class="text-sky-400 font-bold">p / e</span> : Pi (π) & Euler (e)</div>
+                        <div class="bg-slate-800/60 p-2 rounded-lg border border-slate-700/50"><span class="text-sky-400 font-bold">!</span> : Factorial (n!)</div>
+                    </div>
+                </div>
+
+                <button onclick="toggleHelpModal()" class="w-full mt-2 py-2 bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold rounded-xl transition-colors">
+                    Close Guide
+                </button>
+            </div>
+        </div>
+
+        <!-- Ad Info Modal -->
+        <div id="adInfoModal" class="hidden absolute inset-0 bg-slate-950/85 z-40 backdrop-blur-md flex items-center justify-center p-4">
+            <div class="bg-slate-900 border border-slate-700 rounded-2xl p-5 max-w-xs w-full shadow-2xl flex flex-col">
+                <div class="flex items-center justify-between pb-2 border-b border-slate-800 mb-3">
+                    <span class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                        <i data-lucide="info" class="w-4 h-4 text-amber-400"></i> Sponsored Placement
+                    </span>
+                    <button onclick="toggleAdInfo()" class="text-slate-400 hover:text-slate-100">
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                    </button>
+                </div>
+                <p class="text-xs text-slate-300 leading-relaxed mb-3">
+                    This ad banner rotates sponsor offers. When dismissed, it automatically returns after a 5-second delay.
+                </p>
+                <button onclick="toggleAdInfo()" class="w-full py-2 bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold rounded-xl transition-colors">
+                    Got it
+                </button>
+            </div>
+        </div>
+
+        <!-- Toast Feedback Notification Popover -->
+        <div id="toast" class="absolute bottom-4 left-1/2 -translate-x-1/2 z-50 px-4 py-2 bg-slate-800/95 border border-sky-500/40 text-slate-100 text-xs font-medium rounded-full shadow-2xl backdrop-blur-md opacity-0 pointer-events-none transition-all duration-200 flex items-center gap-2">
+            <i data-lucide="check-circle-2" class="w-4 h-4 text-sky-400"></i>
+            <span id="toastMessage">Action completed</span>
+        </div>
+
+    </div>
+
+    <script>
+        // ================= APPLICATION STATE =================
+        let rawExpression = '';
+        let calcMode = 'basic'; // 'basic' | 'scientific'
+        let angleMode = 'DEG'; // 'DEG' | 'RAD'
+        let memoryValue = 0;
+        let history = [];
+        let currentHistoryFilter = 'all'; // 'all' | 'starred'
+        let soundEnabled = true;
+        let isDarkMode = true;
+        let isNewCalculation = false;
+        let audioContext = null;
+
+        // Dummy Sponsored Ads Database
+        const dummyAds = [
+            {
+                title: "🚀 Cloud Storage Pro - 50% Off",
+                desc: "Secure 2TB lifetime backup today for $29.",
+                cta: "Claim",
+                icon: "cloud"
+            },
+            {
+                title: "🎮 Play Logic Puzzles Online",
+                desc: "1,000+ free math & IQ challenges.",
+                cta: "Play",
+                icon: "gamepad-2"
+            },
+            {
+                title: "☕ Fresh Artisanal Coffee",
+                desc: "Single-origin beans delivered at 20% off.",
+                cta: "Order",
+                icon: "coffee"
+            },
+            {
+                title: "⚡ DevPulse Real-Time Metrics",
+                desc: "Instant web analytics for developers.",
+                cta: "Try Free",
+                icon: "zap"
+            },
+            {
+                title: "🎓 Master Python & Data Science",
+                desc: "Interactive course with verified certificate.",
+                cta: "Enroll",
+                icon: "code"
+            }
+        ];
+        let currentAdIndex = 0;
+
+        // Ad Resuming Timer State
+        let adCountdownTimer = null;
+        let adCountdownSeconds = 5;
+
+        // ================= AUDIO SYNTHESIZER (WEB AUDIO API) =================
+        function playClickSound(type = 'digit') {
+            if (!soundEnabled) return;
+
+            try {
+                const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                if (!AudioCtx) return;
+
+                if (!audioContext) audioContext = new AudioCtx();
+                if (audioContext.state === 'suspended') audioContext.resume();
+
+                const osc = audioContext.createOscillator();
+                const gain = audioContext.createGain();
+
+                let freq = 520;
+                let duration = 0.035;
+
+                switch (type) {
+                    case 'operator': freq = 720; break;
+                    case 'equals': freq = 950; duration = 0.06; break;
+                    case 'clear': freq = 350; break;
+                    case 'memory': freq = 650; break;
+                    default: freq = 520;
+                }
+
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, audioContext.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(150, audioContext.currentTime + duration);
+
+                gain.gain.setValueAtTime(0.10, audioContext.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration);
+
+                osc.connect(gain);
+                gain.connect(audioContext.destination);
+
+                osc.start();
+                osc.stop(audioContext.currentTime + duration);
+            } catch (e) {
+                // Sound is optional; never break calculator operation.
+            }
+        }
+
+        // ================= CALCULATOR LOGIC & PARSER ENGINE =================
+        function updateDisplay() {
+            const exprEl = document.getElementById('expressionDisplay');
+            const resultEl = document.getElementById('resultDisplay');
+            const previewEl = document.getElementById('livePreview');
+
+            // Format expression string visually
+            exprEl.textContent = formatExpressionForDisplay(rawExpression);
+
+            // Calculate live result preview
+            if (rawExpression.trim().length > 0) {
+                const liveRes = evaluateExpression(rawExpression);
+                if (liveRes !== null && !isNaN(liveRes) && isFinite(liveRes)) {
+                    previewEl.textContent = `= ${formatNumber(liveRes)}`;
+                } else {
+                    previewEl.textContent = '';
+                }
+            } else {
+                previewEl.textContent = '';
+                resultEl.textContent = '0';
+            }
+
+            // Update parentheses counter
+            updateParenCounter();
+
+            // Memory indicator
+            const memBadge = document.getElementById('memoryIndicator');
+            if (memoryValue !== 0) {
+                memBadge.classList.remove('hidden');
+                memBadge.classList.add('flex');
+            } else {
+                memBadge.classList.add('hidden');
+                memBadge.classList.remove('flex');
+            }
+        }
+
+        function formatExpressionForDisplay(expr) {
+            if (!expr) return '';
+            return expr
+                .replace(/\*/g, '×')
+                .replace(/\//g, '÷')
+                .replace(/asin\(/g, 'sin⁻¹(')
+                .replace(/acos\(/g, 'cos⁻¹(')
+                .replace(/atan\(/g, 'tan⁻¹(')
+                .replace(/sqrt\(/g, '√(')
+                .replace(/cbrt\(/g, '∛(')
+                .replace(/log10\(/g, 'log₁₀(')
+                .replace(/ln\(/g, 'ln(')
+                .replace(/abs\(/g, 'abs(')
+                .replace(/PI/g, 'π')
+                .replace(/E/g, 'e');
+        }
+
+        function updateParenCounter() {
+            const openCount = (rawExpression.match(/\(/g) || []).length;
+            const closeCount = (rawExpression.match(/\)/g) || []).length;
+            const diff = openCount - closeCount;
+
+            const badge = document.getElementById('parenBadge');
+            const countEl = document.getElementById('openParenCount');
+
+            if (diff > 0) {
+                countEl.textContent = diff;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+
+        function appendDigit(digit) {
+            playClickSound('digit');
+
+            if (isNewCalculation) {
+                rawExpression = '';
+                isNewCalculation = false;
+            }
+
+            // Start a new number after an operator/parenthesis where appropriate.
+            rawExpression += digit;
+            updateDisplay();
+        }
+
+        function appendDecimal() {
+            playClickSound('digit');
+
+            if (isNewCalculation) {
+                rawExpression = '';
+                isNewCalculation = false;
+            }
+
+            const lastToken = rawExpression.match(/(?:\d+(?:\.\d*)?|\.\d+)$/);
+            if (lastToken && lastToken[0].includes('.')) return;
+
+            if (!rawExpression || /[+\-*\/^%(]$/.test(rawExpression)) {
+                rawExpression += '0.';
+            } else {
+                rawExpression += '.';
+            }
+
+            updateDisplay();
+        }
+
+        function appendOperator(op) {
+            playClickSound('operator');
+	    isNewCalculation = false; 
+            let normOp = op;
+            if (op === '×') normOp = '*';
+            if (op === '÷') normOp = '/';
+
+            if (!rawExpression && (normOp === '*' || normOp === '/' || normOp === '^' || normOp === 'mod' || normOp === '%')) {
+                return;
+            }
+
+            if (/[+\-*\/]$/.test(rawExpression)) {
+                rawExpression = rawExpression.slice(0, -1) + normOp;
+            } else {
+                rawExpression += normOp;
+            }
+            updateDisplay();
+        }
+
+        function appendFunction(fn) {
+            playClickSound('operator');
+
+            if (fn !== 'negate' && isNewCalculation) {
+                // Scientific functions operate on the previous result.
+                isNewCalculation = false;
+            }
+
+            switch(fn) {
+                case 'sin': rawExpression += 'sin('; break;
+                case 'cos': rawExpression += 'cos('; break;
+                case 'tan': rawExpression += 'tan('; break;
+                case 'asin': rawExpression += 'asin('; break;
+                case 'acos': rawExpression += 'acos('; break;
+                case 'atan': rawExpression += 'atan('; break;
+                case 'log': rawExpression += 'log10('; break;
+                case 'ln': rawExpression += 'ln('; break;
+                case 'sqrt': rawExpression += 'sqrt('; break;
+                case 'cbrt': rawExpression += 'cbrt('; break;
+                case 'e^x': rawExpression += 'E^('; break;
+                case '10^x': rawExpression += '10^('; break;
+                case 'square': rawExpression += '^2'; break;
+                case 'cube': rawExpression += '^3'; break;
+                case 'fact': rawExpression += '!'; break;
+                case 'abs': rawExpression += 'abs('; break;
+                case 'negate':
+                    if (isNewCalculation) {
+                        rawExpression = `-(${rawExpression})`;
+                        isNewCalculation = false;
+                    } else if (rawExpression.startsWith('-(') && rawExpression.endsWith(')')) {
+                        rawExpression = rawExpression.slice(2, -1);
+                    } else if (rawExpression) {
+                        rawExpression = `-(${rawExpression})`;
+                    }
+                    break;
+            }
+            updateDisplay();
+        }
+
+        function appendConstant(c) {
+            playClickSound('digit');
+
+            if (isNewCalculation) {
+                rawExpression = '';
+                isNewCalculation = false;
+            }
+
+            if (c === 'π') rawExpression += 'PI';
+            if (c === 'e') rawExpression += 'E';
+            updateDisplay();
+        }
+
+        function appendParen(p) {
+            playClickSound('operator');
+
+            if (isNewCalculation) {
+                rawExpression = '';
+                isNewCalculation = false;
+            }
+
+            rawExpression += p;
+            updateDisplay();
+        }
+
+        function handleAction(type) {
+            if (type === 'clear') {
+                playClickSound('clear');
+                rawExpression = '';
+                isNewCalculation = false;
+                document.getElementById('resultDisplay').textContent = '0';
+            } else if (type === 'clearEntry') {
+                playClickSound('clear');
+                rawExpression = rawExpression.replace(/([a-zA-Z10]+[^\w]*|\d+\.?\d*|[+\-*\/^()])$/, '');
+            } else if (type === 'backspace') {
+                playClickSound('digit');
+                if (rawExpression.length > 0) {
+                    rawExpression = rawExpression.slice(0, -1);
+                }
+            }
+            updateDisplay();
+        }
+
+        function evaluateExpression(exprStr) {
+            try {
+                if (!exprStr) return null;
+
+                let sanitized = exprStr;
+
+                const openCount = (sanitized.match(/\(/g) || []).length;
+                const closeCount = (sanitized.match(/\)/g) || []).length;
+                if (openCount > closeCount) {
+                    sanitized += ')'.repeat(openCount - closeCount);
+                }
+
+                sanitized = sanitized.replace(/(\d+(\.\d+)?)%/g, '($1/100)');
+
+                sanitized = sanitized.replace(/(\d+)!/g, (match, num) => {
+                    return factorial(parseInt(num));
+                });
+
+                sanitized = sanitized.replace(/mod/g, '%');
+                sanitized = sanitized.replace(/\^/g, '**');
+
+                const toRad = (angle) => angleMode === 'DEG' ? (angle * Math.PI / 180) : angle;
+                const toDeg = (rad) => angleMode === 'DEG' ? (rad * 180 / Math.PI) : rad;
+
+                const scope = {
+                    PI: Math.PI,
+                    E: Math.E,
+                    sin: (x) => Math.sin(toRad(x)),
+                    cos: (x) => Math.cos(toRad(x)),
+                    tan: (x) => Math.tan(toRad(x)),
+                    asin: (x) => toDeg(Math.asin(x)),
+                    acos: (x) => toDeg(Math.acos(x)),
+                    atan: (x) => toDeg(Math.atan(x)),
+                    log10: (x) => Math.log10(x),
+                    ln: (x) => Math.log(x),
+                    sqrt: (x) => Math.sqrt(x),
+                    cbrt: (x) => Math.cbrt(x),
+                    abs: (x) => Math.abs(x)
+                };
+
+                const keys = Object.keys(scope);
+                const values = Object.values(scope);
+                const evaluator = new Function(...keys, `"use strict"; return (${sanitized});`);
+                
+                const result = evaluator(...values);
+                if (typeof result === 'number' && !isNaN(result)) {
+                    return Math.round(result * 1e12) / 1e12;
+                }
+                return null;
+            } catch(e) {
+                return null;
+            }
+        }
+
+        function factorial(n) {
+            if (n < 0) return NaN;
+            if (n === 0 || n === 1) return 1;
+            let res = 1;
+            for (let i = 2; i <= n; i++) res *= i;
+            return res;
+        }
+
+        function executeCalculation() {
+            playClickSound('equals');
+            if (!rawExpression) return;
+
+            const finalRes = evaluateExpression(rawExpression);
+
+            if (finalRes !== null && !isNaN(finalRes) && isFinite(finalRes)) {
+                const formattedRes = formatNumber(finalRes);
+                document.getElementById('resultDisplay').textContent = formattedRes;
+
+                const fullExprFormatted = formatExpressionForDisplay(rawExpression);
+                addHistoryEntry(fullExprFormatted, formattedRes);
+
+                // Keep the result internally so operators can continue from it,
+                // but a digit/decimal/function starts a fresh calculation.
+                rawExpression = finalRes.toString();
+                isNewCalculation = true;
+                document.getElementById('livePreview').textContent = '';
+                updateParenCounter();
+            } else {
+                document.getElementById('resultDisplay').textContent = 'Error';
+                isNewCalculation = true;
+                showToast("Invalid Math Expression");
+            }
+        }
+
+        function formatNumber(val) {
+            if (Math.abs(val) > 1e11 || (Math.abs(val) < 1e-6 && val !== 0)) {
+                return val.toExponential(6);
+            }
+            return val.toString();
+        }
+
+        function handleMemory(action) {
+            playClickSound('memory');
+            const currentRes = parseFloat(document.getElementById('resultDisplay').textContent);
+
+            switch(action) {
+                case 'MC':
+                    memoryValue = 0;
+                    showToast("Memory Cleared");
+                    break;
+                case 'MR':
+                    rawExpression = memoryValue.toString();
+                    isNewCalculation = true;
+                    showToast(`Recalled Memory: ${memoryValue}`);
+                    break;
+                case 'M+':
+                    if (!isNaN(currentRes)) {
+                        memoryValue += currentRes;
+                        showToast(`Added to Memory: ${memoryValue}`);
+                    }
+                    break;
+                case 'M-':
+                    if (!isNaN(currentRes)) {
+                        memoryValue -= currentRes;
+                        showToast(`Subtracted from Memory: ${memoryValue}`);
+                    }
+                    break;
+            }
+            updateDisplay();
+        }
+
+        function toggleAngleMode() {
+            angleMode = angleMode === 'DEG' ? 'RAD' : 'DEG';
+            document.getElementById('angleModeBtn').textContent = angleMode;
+            showToast(`Angle Mode set to ${angleMode}`);
+            updateDisplay();
+        }
+
+        function setCalcMode(mode) {
+            calcMode = mode;
+            const sciPanel = document.getElementById('sciPanel');
+            const basicBtn = document.getElementById('modeBasicBtn');
+            const sciBtn = document.getElementById('modeSciBtn');
+            const tag = document.getElementById('calcModeTag');
+
+            if (mode === 'basic') {
+                sciPanel.classList.add('hidden');
+                basicBtn.className = "px-2.5 py-1 text-xs font-semibold rounded-lg transition-all bg-sky-500 text-white shadow-sm";
+                sciBtn.className = "px-2.5 py-1 text-xs font-semibold rounded-lg transition-all text-slate-400 hover:text-slate-200";
+                tag.textContent = "STD MODE";
+            } else {
+                sciPanel.classList.remove('hidden');
+                sciBtn.className = "px-2.5 py-1 text-xs font-semibold rounded-lg transition-all bg-sky-500 text-white shadow-sm";
+                basicBtn.className = "px-2.5 py-1 text-xs font-semibold rounded-lg transition-all text-slate-400 hover:text-slate-200";
+                tag.textContent = "SCI MODE";
+            }
+        }
+
+        // ================= HISTORY MANAGEMENT =================
+        function loadHistory() {
+            try {
+                const stored = localStorage.getItem('omni_sci_calc_history');
+                history = stored ? JSON.parse(stored) : [];
+            } catch(e) {
+                history = [];
+            }
+            renderHistory();
+        }
+
+        function saveHistory() {
+            try {
+                localStorage.setItem('omni_sci_calc_history', JSON.stringify(history));
+            } catch(e) {}
+            renderHistory();
+        }
+
+        function addHistoryEntry(expression, result) {
+            const now = new Date();
+            const entry = {
+                id: 'hist_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+                expression: expression,
+                result: result,
+                timestamp: now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                starred: false
+            };
+
+            history.unshift(entry);
+            if (history.length > 100) history.pop();
+            saveHistory();
+        }
+
+        function toggleStarHistoryItem(id, event) {
+            event.stopPropagation();
+            const item = history.find(h => h.id === id);
+            if (item) {
+                item.starred = !item.starred;
+                saveHistory();
+                showToast(item.starred ? "Starred calculation" : "Unstarred calculation");
+            }
+        }
+
+        function renderHistory() {
+            const listEl = document.getElementById('historyList');
+            const badgeEl = document.getElementById('historyBadge');
+            const countTextEl = document.getElementById('historyCountText');
+            const searchVal = document.getElementById('historySearchInput').value.toLowerCase();
+
+            let filtered = history.filter(item => {
+                const matchesSearch = item.expression.toLowerCase().includes(searchVal) ||
+                                      item.result.toLowerCase().includes(searchVal);
+                if (currentHistoryFilter === 'starred') {
+                    return matchesSearch && item.starred;
+                }
+                return matchesSearch;
+            });
+
+            if (history.length > 0) {
+                badgeEl.textContent = history.length > 99 ? '99+' : history.length;
+                badgeEl.classList.remove('opacity-0');
+            } else {
+                badgeEl.classList.add('opacity-0');
+            }
+
+            countTextEl.textContent = `${filtered.length} of ${history.length} items`;
+
+            if (filtered.length === 0) {
+                listEl.innerHTML = `
+                    <div class="h-full flex flex-col items-center justify-center text-center p-6 text-slate-500">
+                        <i data-lucide="history" class="w-10 h-10 mb-2 stroke-1 opacity-50"></i>
+                        <p class="text-xs font-medium">No calculations found</p>
+                        <p class="text-[11px] opacity-75 mt-0.5">Perform calculations to build history.</p>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            listEl.innerHTML = filtered.map(item => `
+                <div class="p-3 bg-slate-900/80 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 rounded-xl transition-all cursor-pointer group flex items-start justify-between gap-2" onclick="useHistoryResult('${item.result}')">
+                    <div class="flex-1 min-w-0">
+                        <div class="text-[11px] text-slate-400 font-mono flex items-center justify-between mb-0.5">
+                            <span class="truncate">${escapeHtml(item.expression)} =</span>
+                            <span class="text-[10px] text-slate-500 ml-1 shrink-0">${item.timestamp}</span>
+                        </div>
+                        <div class="text-lg font-bold font-mono text-sky-400 truncate">
+                            ${escapeHtml(item.result)}
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-1 opacity-80 group-hover:opacity-100 transition-opacity">
+                        <button onclick="toggleStarHistoryItem('${item.id}', event)" class="p-1.5 text-slate-400 hover:text-amber-400 rounded-lg">
+                            <i data-lucide="star" class="w-3.5 h-3.5 ${item.starred ? 'fill-amber-400 text-amber-400' : ''}"></i>
+                        </button>
+                        <button onclick="deleteHistoryItem('${item.id}', event)" class="p-1.5 text-slate-400 hover:text-rose-400 rounded-lg">
+                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+
+            lucide.createIcons();
+        }
+
+        function useHistoryResult(res) {
+            rawExpression = res;
+            updateDisplay();
+            showToast(`Loaded value: ${res}`);
+            toggleHistoryDrawer();
+        }
+
+        function deleteHistoryItem(id, event) {
+            event.stopPropagation();
+            history = history.filter(item => item.id !== id);
+            saveHistory();
+            showToast("Item deleted");
+        }
+
+        function setHistoryFilter(filter) {
+            currentHistoryFilter = filter;
+            const tabAll = document.getElementById('historyTabAll');
+            const tabStarred = document.getElementById('historyTabStarred');
+
+            if (filter === 'all') {
+                tabAll.className = "px-2.5 py-1 text-[11px] font-medium rounded-lg text-white bg-sky-600 transition-colors";
+                tabStarred.className = "px-2.5 py-1 text-[11px] font-medium rounded-lg text-slate-400 hover:text-white transition-colors flex items-center gap-1";
+            } else {
+                tabStarred.className = "px-2.5 py-1 text-[11px] font-medium rounded-lg text-white bg-sky-600 transition-colors flex items-center gap-1";
+                tabAll.className = "px-2.5 py-1 text-[11px] font-medium rounded-lg text-slate-400 hover:text-white transition-colors";
+            }
+            renderHistory();
+        }
+
+        function filterHistory() {
+            renderHistory();
+        }
+
+        function promptClearHistory() {
+            if (history.length === 0) {
+                showToast("History is already empty");
+                return;
+            }
+            document.getElementById('confirmModal').classList.remove('hidden');
+        }
+
+        function closeConfirmModal() {
+            document.getElementById('confirmModal').classList.add('hidden');
+        }
+
+        function confirmClearHistory() {
+            history = [];
+            saveHistory();
+            closeConfirmModal();
+            showToast("All history erased");
+        }
+
+        function exportHistoryTxt() {
+            if (history.length === 0) {
+                showToast("No history to export");
+                return;
+            }
+            let textContent = "====================================\n";
+            textContent += "   MQOCalc : BASIC & SCIENTIFIC HISTORY      \n";
+            textContent += `   Exported: ${new Date().toLocaleString()}\n`;
+            textContent += "====================================\n\n";
+
+            history.forEach((item, index) => {
+                textContent += `[${index + 1}] ${item.timestamp} ${item.starred ? '★' : ''}\n`;
+                textContent += `    Formula: ${item.expression}\n`;
+                textContent += `    Result : ${item.result}\n\n`;
+            });
+
+            downloadBlob(textContent, `MQOCalc_history_${Date.now()}.txt`, 'text/plain');
+        }
+
+        function exportHistoryJson() {
+            if (history.length === 0) {
+                showToast("No history to export");
+                return;
+            }
+            const data = JSON.stringify(history, null, 2);
+            downloadBlob(data, `MQOCalc_history_${Date.now()}.json`, 'application/json');
+        }
+
+        async function downloadBlob(content, filename, contentType) {
+            // Preferred Chromium/Edge path: avoids blob URL download restrictions.
+            try {
+                if ('showSaveFilePicker' in window && window.isSecureContext) {
+                    const handle = await window.showSaveFilePicker({
+                        suggestedName: filename,
+                        types: [{
+                            description: contentType === 'application/json' ? 'JSON file' : 'Text file',
+                            accept: { [contentType]: [contentType === 'application/json' ? '.json' : '.txt'] }
+                        }]
+                    });
+                    const writable = await handle.createWritable();
+                    await writable.write(new Blob([content], { type: contentType }));
+                    await writable.close();
+                    showToast("Export saved successfully");
+                    return;
+                }
+            } catch (e) {
+                if (e && e.name === 'AbortError') {
+                    showToast("Export cancelled");
+                    return;
+                }
+            }
+
+            // Standard browser fallback.
+            try {
+                const blob = new Blob([content], { type: contentType });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                a.rel = 'noopener';
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+
+                setTimeout(() => URL.revokeObjectURL(url), 1500);
+                showToast("Export downloaded");
+                return;
+            } catch (e) {
+                // Last-resort fallback: open the generated content so it can be saved manually.
+                try {
+                    const dataUrl = 'data:' + contentType + ';charset=utf-8,' + encodeURIComponent(content);
+                    window.open(dataUrl, '_blank', 'noopener');
+                    showToast("Export opened in a new tab");
+                } catch (fallbackError) {
+                    showToast("Download is blocked by this browser. Copy the history instead.");
+                    console.error("History export failed:", fallbackError);
+                }
+            }
+        }
+
+        function toggleHistoryDrawer() {
+            const drawer = document.getElementById('historyDrawer');
+            drawer.classList.toggle('translate-x-full');
+        }
+
+        // ================= AD ROTATION & 5-SECOND AUTO-RESUME ENGINE =================
+        function startAdRotation() {
+            updateAdContent();
+            setInterval(() => {
+                // Rotate ad content every 7.5s
+                currentAdIndex = (currentAdIndex + 1) % dummyAds.length;
+                updateAdContent();
+            }, 7500);
+        }
+
+        function updateAdContent() {
+            const ad = dummyAds[currentAdIndex];
+            const titleEl = document.getElementById('adTitle');
+            const descEl = document.getElementById('adDesc');
+            const ctaEl = document.getElementById('adCta');
+            const iconEl = document.getElementById('adIcon');
+
+            if (!titleEl) return;
+
+            titleEl.textContent = ad.title;
+            descEl.textContent = ad.desc;
+            ctaEl.textContent = ad.cta;
+            iconEl.innerHTML = `<i data-lucide="${ad.icon}" class="w-4 h-4"></i>`;
+
+            lucide.createIcons();
+        }
+
+        function dismissAd() {
+            const banner = document.getElementById('adBanner');
+            const timerNotice = document.getElementById('adTimerNotice');
+
+            // Collapse Ad Banner
+            banner.classList.remove('ad-expanded');
+            banner.classList.add('ad-collapsed');
+
+            // Show 5-second countdown notice
+            timerNotice.classList.remove('hidden');
+            
+            // Clear any existing timer
+            if (adCountdownTimer) clearInterval(adCountdownTimer);
+
+            adCountdownSeconds = 5;
+            document.getElementById('adCountdownText').textContent = adCountdownSeconds;
+
+            showToast("Ad dismissed (Will return in 5s)");
+
+            // Start 5-second countdown interval
+            adCountdownTimer = setInterval(() => {
+                adCountdownSeconds--;
+                if (adCountdownSeconds > 0) {
+                    document.getElementById('adCountdownText').textContent = adCountdownSeconds;
+                } else {
+                    clearInterval(adCountdownTimer);
+                    restoreAdBanner();
+                }
+            }, 1000);
+        }
+
+        function restoreAdImmediately() {
+            if (adCountdownTimer) clearInterval(adCountdownTimer);
+            restoreAdBanner();
+        }
+
+        function restoreAdBanner() {
+            const banner = document.getElementById('adBanner');
+            const timerNotice = document.getElementById('adTimerNotice');
+
+            // Switch to next ad on return
+            currentAdIndex = (currentAdIndex + 1) % dummyAds.length;
+            updateAdContent();
+
+            timerNotice.classList.add('hidden');
+            banner.classList.remove('ad-collapsed');
+            banner.classList.add('ad-expanded');
+
+            showToast("Ad banner restored");
+        }
+
+        function toggleAdInfo() {
+            document.getElementById('adInfoModal').classList.toggle('hidden');
+        }
+
+        function toggleHelpModal() {
+            document.getElementById('helpModal').classList.toggle('hidden');
+        }
+
+        // ================= GENERAL HELPERS & KEYBOARD EVENTS =================
+        function updateSoundButton() {
+            const btn = document.getElementById('soundToggleBtn');
+            btn.innerHTML = soundEnabled
+                ? `<i data-lucide="volume-2" class="w-4 h-4 text-sky-400"></i>`
+                : `<i data-lucide="volume-x" class="w-4 h-4 text-slate-500"></i>`;
+            lucide.createIcons();
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            localStorage.setItem('mqocalc_sound', soundEnabled ? 'on' : 'off');
+            updateSoundButton();
+
+            // Create/resume the audio context only after a real user gesture.
+            if (soundEnabled) {
+                try {
+                    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                    if (AudioCtx && !audioContext) audioContext = new AudioCtx();
+                    if (audioContext && audioContext.state === 'suspended') audioContext.resume();
+                } catch (e) {}
+            }
+
+            showToast(soundEnabled ? "Sound Enabled" : "Sound Muted");
+        }
+
+        function updateThemeButton() {
+            const btn = document.getElementById('themeToggleBtn');
+            btn.innerHTML = isDarkMode
+                ? `<i data-lucide="sun" class="w-4 h-4"></i>`
+                : `<i data-lucide="moon" class="w-4 h-4 text-orange-600"></i>`;
+            lucide.createIcons();
+        }
+
+        function applyTheme() {
+            const htmlEl = document.documentElement;
+            const body = document.body;
+
+            htmlEl.classList.toggle('dark', isDarkMode);
+            body.classList.toggle('light-theme', !isDarkMode);
+            body.classList.toggle('dark-theme', isDarkMode);
+
+            localStorage.setItem('mqocalc_theme', isDarkMode ? 'dark' : 'light');
+            updateThemeButton();
+        }
+
+        function toggleTheme() {
+            isDarkMode = !isDarkMode;
+            applyTheme();
+            showToast(isDarkMode ? "Dark Theme" : "Day Theme");
+        }
+
+        function copyCurrentResult() {
+            const res = document.getElementById('resultDisplay').textContent;
+            if (res === 'Error') return;
+
+            const textarea = document.createElement('textarea');
+            textarea.value = res;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+
+            showToast(`Copied ${res} to clipboard`);
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            const msgEl = document.getElementById('toastMessage');
+            msgEl.textContent = msg;
+            toast.classList.remove('opacity-0', 'pointer-events-none');
+            toast.classList.add('opacity-100');
+
+            setTimeout(() => {
+                toast.classList.remove('opacity-100');
+                toast.classList.add('opacity-0', 'pointer-events-none');
+            }, 2200);
+        }
+
+        function escapeHtml(text) {
+            return String(text)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        // Global Keyboard Event Listener
+        window.addEventListener('keydown', (e) => {
+            if (document.activeElement && document.activeElement.id === 'historySearchInput') {
+                return;
+            }
+
+            const key = e.key;
+
+            if (key >= '0' && key <= '9') appendDigit(key);
+            else if (key === '.') appendDecimal();
+            else if (key === '+') appendOperator('+');
+            else if (key === '-') appendOperator('-');
+            else if (key === '*') appendOperator('×');
+            else if (key === '/') { e.preventDefault(); appendOperator('÷'); }
+            else if (key === '^') appendOperator('^');
+            else if (key === '%') appendOperator('%');
+            else if (key === '(' || key === ')') appendParen(key);
+            else if (key === 'Enter' || key === '=') { e.preventDefault(); executeCalculation(); }
+            else if (key === 'Backspace') handleAction('backspace');
+            else if (key === 'Escape') handleAction('clear');
+            else if (key.toLowerCase() === 's') appendFunction('sin');
+            else if (key.toLowerCase() === 'c') appendFunction('cos');
+            else if (key.toLowerCase() === 't') appendFunction('tan');
+            else if (key.toLowerCase() === 'p') appendConstant('π');
+            else if (key.toLowerCase() === 'e') appendConstant('e');
+            else if (key === '!') appendFunction('fact');
+        });
+
+        // Initialize App on window load
+        window.onload = function() {
+            lucide.createIcons();
+
+            try {
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            } catch (e) {
+                // AdSense may be unavailable in local preview or before site approval.
+            }
+
+            // Always open in BASIC mode on startup.
+            calcMode = 'basic';
+            setCalcMode('basic');
+
+            // Restore optional preferences without changing calculator mode.
+            try {
+                const savedSound = localStorage.getItem('mqocalc_sound');
+                if (savedSound === 'off') soundEnabled = false;
+
+                const savedTheme = localStorage.getItem('mqocalc_theme');
+                if (savedTheme === 'light') isDarkMode = false;
+                else if (savedTheme === 'dark') isDarkMode = true;
+            } catch (e) {}
+
+            applyTheme();
+            updateSoundButton();
+
+            rawExpression = '';
+            isNewCalculation = false;
+            document.getElementById('resultDisplay').textContent = '0';
+
+            loadHistory();
+            startAdRotation();
+            updateDisplay();
+        };
+    </script>
+</body>
+</html>
